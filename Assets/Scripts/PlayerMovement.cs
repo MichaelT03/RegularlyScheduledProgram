@@ -20,6 +20,7 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         Run();
+        FlipSprite();
     }
 
     void Run()
@@ -30,9 +31,17 @@ public class PlayerMovement : MonoBehaviour
         Vector2 playerVelocity = new Vector2(moveInput.x * moveSpeed, moveInput.y * moveSpeed);
         myRigidbody.velocity = playerVelocity;
 
-        if (playerHasMovement)
+        
+    }
+
+    void FlipSprite()
+    {
+        bool playerHasHorizontalMovement = Mathf.Abs(myRigidbody.velocity.x) > Mathf.Epsilon;
+        bool playerHasVerticalMovement = Mathf.Abs(myRigidbody.velocity.y) > Mathf.Epsilon;
+
+        if (playerHasHorizontalMovement)
         {
-            Debug.Log("Player is moving");
+            transform.localScale = new Vector2(Mathf.Sign(myRigidbody.velocity.x), 1f);
         }
     }
 
