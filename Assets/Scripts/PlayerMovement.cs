@@ -31,7 +31,14 @@ public class PlayerMovement : MonoBehaviour
         Vector2 playerVelocity = new Vector2(moveInput.x * moveSpeed, moveInput.y * moveSpeed);
         myRigidbody.velocity = playerVelocity;
 
-        
+        playerAnimation();
+    }
+
+    void playerAnimation()
+    {
+        bool playerHasHorizontalMovement = (Mathf.Abs(myRigidbody.velocity.x) > Mathf.Epsilon);
+
+
     }
 
     void FlipSprite()
