@@ -5,9 +5,13 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
+    // Create a variable to hold external scripts
+    TVInteraction tvi;
+
     [SerializeField] float moveSpeed = 5f;
 
     Rigidbody2D myRigidbody;
+    CapsuleCollider2D myCapsuleCollider;
     Vector2 moveInput;
     Animator myAnimator;
 
@@ -16,6 +20,10 @@ public class PlayerMovement : MonoBehaviour
     {
         myRigidbody = GetComponent<Rigidbody2D>();
         myAnimator = GetComponent<Animator>();
+        myCapsuleCollider = GetComponent<CapsuleCollider2D>();
+
+        // Create a reference to the external gameObject and get it's sctript
+        tvi = GameObject.FindGameObjectWithTag("TV").GetComponent<TVInteraction>();
     }
 
     // Update is called once per frame
@@ -92,6 +100,9 @@ public class PlayerMovement : MonoBehaviour
 
     void OnInteract(InputValue input)
     {
-        Debug.Log("Interact key pressed");
+        LayerMask TVLayer = LayerMask.GetMask("TV");
+
+        if (myCapsuleCollider.IsTouchingLayers(TVLayer))
+            tvi.ToggleAnimation();
     }
 }
