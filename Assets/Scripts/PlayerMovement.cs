@@ -9,18 +9,19 @@ public class PlayerMovement : MonoBehaviour
 
     Rigidbody2D myRigidbody;
     Vector2 moveInput;
+    Animator myAnimator;
 
     // Start is called before the first frame update
     void Start()
     {
         myRigidbody = GetComponent<Rigidbody2D>();
+        myAnimator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
     void Update()
     {
         Run();
-        FlipSprite();
     }
 
     void Run()
@@ -31,20 +32,51 @@ public class PlayerMovement : MonoBehaviour
         Vector2 playerVelocity = new Vector2(moveInput.x * moveSpeed, moveInput.y * moveSpeed);
         myRigidbody.velocity = playerVelocity;
 
+        FlipSprite();
         playerAnimation();
     }
 
     void playerAnimation()
     {
+        
         bool playerHasHorizontalMovement = (Mathf.Abs(myRigidbody.velocity.x) > Mathf.Epsilon);
+        bool playerIsMovingUp = myRigidbody.velocity.y > Mathf.Epsilon;
+        bool playerIsMovingDown = myRigidbody.velocity.y < 0f;
 
+        if (playerHasHorizontalMovement)
+        {
+            myAnimator.SetBool("isMovingHoriz", true);
+            myAnimator.SetBool("isMovingUp", false);
+            myAnimator.SetBool("isMovingDown", false);
+            return;
+        }
+        else if (playerIsMovingDown)
+        {
+            myAnimator.SetBool("isMovingHoriz", false);
+            myAnimator.SetBool("isMovingUp", false);
+            myAnimator.SetBool("isMovingDown", true);
+            return;
+        }
+        else if (playerIsMovingUp)
+        {
+            myAnimator.SetBool("isMovingHoriz", false);
+            myAnimator.SetBool("isMovingUp", true);
+            myAnimator.SetBool("isMovingDown", false);
+            return;
+        }            
+        else
+        {
+            myAnimator.SetBool("isMovingHoriz", false);
+            myAnimator.SetBool("isMovingUp", false);
+            myAnimator.SetBool("isMovingDown", false);
+            return;
+        }
 
     }
 
     void FlipSprite()
     {
         bool playerHasHorizontalMovement = Mathf.Abs(myRigidbody.velocity.x) > Mathf.Epsilon;
-        bool playerHasVerticalMovement = Mathf.Abs(myRigidbody.velocity.y) > Mathf.Epsilon;
 
         if (playerHasHorizontalMovement)
         {
