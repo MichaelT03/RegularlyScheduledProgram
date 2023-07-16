@@ -18,6 +18,7 @@ public class PlayerMovement : MonoBehaviour
     // Raycast variables
     [SerializeField] float raycastDistance = 1.0f;
     [SerializeField] int raycastCount = 12;
+    LayerMask raycastLayerMask;
     bool rayIsTouchingTv = false;
 
     // Start is called before the first frame update
@@ -26,6 +27,8 @@ public class PlayerMovement : MonoBehaviour
         myRigidbody = GetComponent<Rigidbody2D>();
         myAnimator = GetComponent<Animator>();
         myCapsuleCollider = GetComponent<CapsuleCollider2D>();
+
+        raycastLayerMask = ~LayerMask.GetMask("Player");
 
         // Create a reference to the external gameObject and get it's sctript
         tvi = GameObject.FindGameObjectWithTag("TV").GetComponent<TVInteraction>();
@@ -112,24 +115,26 @@ public class PlayerMovement : MonoBehaviour
         for (int i = 0; i < raycastCount; i++)
         {
             float angle = i * angleInterval;
-            Quaternion rotation = Quaternion.Euler(0f, angle, 0f);
-            Vector3 direction = rotation * transform.forward;
+            Vector2 direction = Quaternion.Euler(0f, 0f, angle) * transform.up;
 
             PerformRaycast(direction);
         }
     }
 
-    void PerformRaycast(Vector3 direction)
+    void PerformRaycast(Vector2 direction)
     {
-        Ray ray = new Ray(transform.position, direction);
-        RaycastHit hit;
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, raycastDistance, raycastLayerMask);
 
-        if (Physics.Raycast(ray, out hit, raycastDistance))
+        if (hit.collider != null)
         {
             if (hit.collider.CompareTag("TV"))
             {
                 rayIsTouchingTv = true;
                 Debug.Log("Ray is hitting TV");
+            }
+            else if (hit.collider.CompareTag("Player"))
+            {
+                Debug.Log("Ray is hitting player");
             }
             else
             {
@@ -137,8 +142,13 @@ public class PlayerMovement : MonoBehaviour
                 Debug.Log("Another object has been hit");
             }
         }
+        else
+        {
+            rayIsTouchingTv = false;
+            Debug.Log("Ray not currently touching anything");
+        }
 
-        Debug.DrawRay(ray.origin, ray.direction * raycastDistance, Color.red);
+        Debug.DrawRay(transform.position, direction * raycastDistance, Color.red);
     }
 
     void OnInteract(InputValue input)
