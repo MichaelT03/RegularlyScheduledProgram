@@ -15,6 +15,11 @@ public class PlayerMovement : MonoBehaviour
     Vector2 moveInput;
     Animator myAnimator;
 
+    // Raycast variables
+    [SerializeField] float raycastDistance = 1.0f;
+    [SerializeField] int raycastCount = 12;
+    bool rayIsTouchingTv = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -30,6 +35,7 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         Run();
+        HandleRaycasts();
     }
 
     void Run()
@@ -98,11 +104,48 @@ public class PlayerMovement : MonoBehaviour
         moveInput = value.Get<Vector2>();
     }
 
+    void HandleRaycasts()
+    {
+        // Evenly space out rays by degrees
+        float angleInterval = 360f / raycastCount;
+
+        for (int i = 0; i < raycastCount; i++)
+        {
+            float angle = i * angleInterval;
+            Quaternion rotation = Quaternion.Euler(0f, angle, 0f);
+            Vector3 direction = rotation * transform.forward;
+
+            PerformRaycast(direction);
+        }
+    }
+
+    void PerformRaycast(Vector3 direction)
+    {
+        Ray ray = new Ray(transform.position, direction);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, raycastDistance))
+        {
+            if (hit.collider.CompareTag("TV"))
+            {
+                rayIsTouchingTv = true;
+                Debug.Log("Ray is hitting TV");
+            }
+            else
+            {
+                rayIsTouchingTv = false;
+                Debug.Log("Another object has been hit");
+            }
+        }
+
+        Debug.DrawRay(ray.origin, ray.direction * raycastDistance, Color.red);
+    }
+
     void OnInteract(InputValue input)
     {
         LayerMask TVLayer = LayerMask.GetMask("TV");
 
-        if (myCapsuleCollider.IsTouchingLayers(TVLayer))
+        if (rayIsTouchingTv)
             tvi.ToggleAnimation();
     }
 }
