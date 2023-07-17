@@ -19,7 +19,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float raycastDistance = 1.0f;
     [SerializeField] int raycastCount = 12;
     LayerMask raycastLayerMask;
-    bool rayIsTouchingTv = false;
 
     // Start is called before the first frame update
     void Start()
@@ -38,7 +37,6 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         Run();
-        HandleRaycasts();
     }
 
     void Run()
@@ -129,7 +127,7 @@ public class PlayerMovement : MonoBehaviour
         {
             if (hit.collider.CompareTag("TV"))
             {
-                rayIsTouchingTv = true;
+                tvi.ToggleAnimation();
                 Debug.Log("Ray is hitting TV");
             }
             else if (hit.collider.CompareTag("Player"))
@@ -138,13 +136,11 @@ public class PlayerMovement : MonoBehaviour
             }
             else
             {
-                rayIsTouchingTv = false;
                 Debug.Log("Another object has been hit");
             }
         }
         else
         {
-            rayIsTouchingTv = false;
             Debug.Log("Ray not currently touching anything");
         }
 
@@ -153,9 +149,6 @@ public class PlayerMovement : MonoBehaviour
 
     void OnInteract(InputValue input)
     {
-        LayerMask TVLayer = LayerMask.GetMask("TV");
-
-        if (rayIsTouchingTv)
-            tvi.ToggleAnimation();
+        HandleRaycasts();
     }
 }
